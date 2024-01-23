@@ -29,9 +29,19 @@ const getById = async (id) => {
         return false
     }
 }
+const getByUsername = async (username) => {
+    try{
+        const pool = await createPool()
+        const [result] = await pool.query("select idUser,name,lastName,username,email,password from users where username=?",[username])
+        return result
+    }catch(error){
+        return false
+    }
+}
 
 module.exports = {
     addUser,
     getAllUsers,
-    getById
+    getById,
+    getByUsername,
 }

@@ -1,4 +1,5 @@
-const {addUser,getAllUsers,getById} = require('../orm/users.orm')
+const {addUser,getAllUsers,getById,getByUsername} = require('../orm/users.orm')
+const {getToken} = require("../repositories/respository.jwt")
 const brycpt = require('bcrypt')
 const saltos = parseInt(process.env.SALTOS)
 const addNewUser = async (req,res) =>{
@@ -51,6 +52,7 @@ const getByIdS = async (req,res) => {
         return res.status(200).json({
             message:"Usuario obtenido correctamente",
             data:result,
+            success:true,
         })
     }catch(error){
         return res.status(500).json({
@@ -59,9 +61,42 @@ const getByIdS = async (req,res) => {
         })
     }
 }
+const loginUser = async (req,res) =>{
+    try{
+        const [user] = await getByUsername(req.body.username)
+        
+        if(!user){
+            return res.status(404).json({
+                message:"usuario o password incorrecto",
+                success:false,
+            })
+        }
+        
+        const validPassword = brycpt.compareSync(req.body.password,user.password)
+        if(!validPassword){
+            return res.status(401).json({
+                message:"usuario o password incorrecto",
+                success:false,
+            })
+        }
+        const token = await getToken(user)
+        return res.status(200).json({
+            message:"Usuario logeado correctamente",
+            success:true,
+            token:token,
+        })
+    }catch(error){
+        return res.status(500).json({
+            message:"Error al iniciar sesion",
+            error:error.message,
+            success:false,
+        })
+    }
+}
 
 module.exports ={
     addNewUser,
     getAllUsersM,
-    getByIdS
+    getByIdS,
+    loginUser
 }
