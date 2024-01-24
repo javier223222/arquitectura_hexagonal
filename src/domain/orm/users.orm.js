@@ -4,8 +4,11 @@ const {createPool} = require('../repositories/repository_mysql')
 const addUser = async (user) => {
     try{
         const pool=await createPool()
+        console.log(user)
         const query=await pool.execute(`insert into users(name,lastName,username,email,password) 
                                        values(?,?,?,?,?)`,[user.name,user.lastName,user.username,user.email,user.password])
+
+                                    
           return true
       }catch(error){
           return false
